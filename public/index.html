@@ -1,9 +1,60 @@
 <html>
 <head>
     <title>This is index.html</title>
+    <!-- ****************************Add jquery ajax library -->
 </head>
 <body>
     <h1>Index</h1>
     <p>This is the content of index.html.</p>
+    <ul id="campsites">
+
+    </ul>
+
+    <form action="users/login" method="POST" enctyper="application/x-www-form-data">
+        <input type="text" id="username" name="username" placeholder="Username">
+        <input type="password" id="password" name="password" placeholder="Password">
+    </form>
+
+    <button id="getUsers">Get Users</button>
+
+    <script>
+        document.querySelector("#getUsers")
+        .addEventListener("click", event => {
+            $.ajax({
+                url: "/users",
+                method: "GET",
+               headers: {
+                   "Authorization": `BEARER ${localStorage.getItem("token")}`
+               } 
+            })
+        })
+
+        let loginForm = document.querySelector("form");
+        loginForm.addEventListener("submit", (event) => {
+            event.preventDefault();
+            $.post('/users/login', {
+                username:document.querySelector('#username').value,
+                password:document.querySelector('#password').value,
+            })
+
+            .then(response => {
+                console.log(response);
+                localStorage.setItem("token", response.token)
+            })
+        })
+
+        $.get('/campsites')
+        .then(campsites => {
+            console.log(campsites)
+            
+            let listContainer = document.querySelector("#campsites");
+
+            campsites.forEach(campsite => {
+                let listItem = document.createElement("li");
+                listItem.textContent = campsite.name;
+                listContainer.appendChild(listItem);
+            })
+        });
+    </script>
 </body>
 </html>
